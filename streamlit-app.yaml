@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streamlit-deployment
+  labels:
+    app: streamlit
+spec:
+  replicas: 1 # set the number of replicas
+  selector:
+    matchLabels:
+      app: streamlit
+  template:
+    metadata:   
+      labels:
+        app: streamlit
+    spec:
+      containers:
+      - name: streamlit-chat
+        image: d1zer99/streamlit-chat:latest
+        ports:
+        - containerPort: 8050
+        env:
+          - name: MODEL_URL
+            value: "http://ollama-service:11434"
+          - name: MODEL_NAME
+            value: "llama3.1:latest"
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: streamlit-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: streamlit
+  ports:
+    - protocol: TCP
+      port: 8050
+      targetPort: 8050
+      # nodePort: 30001
